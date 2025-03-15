@@ -46,7 +46,7 @@ Use your browser history to find URL matches for scenes in StashApps
 
 ---
 
-I did not write any lines of code or even the help menu. ChatGPT made this app for me. I wrote most of this readme tho
+I did not write a line of this code. ChatGPT did it all.WYSIWYG
 
 ---
 
