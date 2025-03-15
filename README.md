@@ -46,7 +46,7 @@ Use your browser history to find URL matches for scenes in StashApps
 
 ---
 
-I did not write a line of this code. ChatGPT did it all.WYSIWYG
+I did not write a single full line of any of this code. ChatGPT did it all.
 
 ---
 
