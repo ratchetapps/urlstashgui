@@ -13,8 +13,9 @@ Use your browser history to find URL matches for scenes in StashApps
  --Click urlhistory, then choose the tagger button on the right side of the search/filter menu
  --Source: Scrape with URL
  --Use a brain cell of attention to skip performers with made up names
+ 
+![Alternative text](how_to_basics1.jpg)
 
-[!](how_to_basics1.jpg)
 ## Using the app
 1. open python file (yaml file editing is optional)
 2. edit StashApp connection info if needed
