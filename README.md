@@ -15,7 +15,7 @@ Use your mozilla browser history to find URL matches for scenes in StashApps
    - app was tested with >50k rows (~50MB total)
 3. Confirm you know where your browser history is. If you install Mozilla on M$ store then it has a different path than the app will try to use.
 
-(/how_to_basics1.jpeg)
+[!](how_to_basics1.jpg)
 ## Using the app
 1. open python file (yaml file editing is optional)
 2. edit StashApp connection info if needed
