@@ -1,13 +1,14 @@
 # urlstashgui
 Use your browser history to find URL matches for scenes in StashApps
 
-## Requirements (built and tested on...)
+## Stuff you need
 - StashApps
 - Browser history  
   - e.g. Mozilla `%APPDATA%\Mozilla\Firefox\Profiles\<your profile>\places.sqlite`  
   - or Chrome `%LOCALAPPDATA%\Google\Chrome\User Data\Default\History`
 - Scenes with filenames that match the URL title in history  
   - `.mp4`, `-01`, `-02`, etc., and any non-alphanumeric character (including spaces) are ignored.
+- _Extensive_ testing has been performed on windows with chrome & mozilla and localhost w/out an apikey. 
 
 ## 
 ![how_to_basics1](how_to_basics1.jpg)
