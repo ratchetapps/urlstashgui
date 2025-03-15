@@ -1,19 +1,18 @@
-# mozhisStashGUI
-Use your mozilla browser history to find URL matches for scenes in StashApps
+# urlstashgui
+Use your browser history to find URL matches for scenes in StashApps
 ## Requirements (built and tested on...)
-- StashApps (v0.27.2-83 thru 88)
-- Python 3 (3.13)
-- Mozilla (135.0.1, non-windows store version)
+- StashApps
+- Browser history
+  --e.g. Mozilla %APPDATA%\Mozilla\Firefox\Profiles \<your profile>\**places.sqlite**
+  -- or Chrome %LOCALAPPDATA%\Google\Chrome\User Data\Default \**History**
 - scenes with filenames that match the URL title in history
- - e.g. filename can be used to search your browser history for the originating URL
+ - .mp4, -01, -02/etc, and any non-alphanumeric character will be ignored, including spaces.
 
-## Using non-Mozilla browser history
-1. For Chrome you can look for a working browser history exporter. Other browsers you may be able to use sqlite3 db software to locate the URL + Title.
-2. Import browser history into Mozilla (more extensions) or make your own sqlite3 database and rename it to places.sqlite.
-   - the only data you need is a table named moz_places containing columns url and title.
-   - removing rows is not necessary, the app will make a copy and cleanse sites automatically
-   - app was tested with >50k rows (~50MB total)
-3. Confirm you know where your browser history is. If you install Mozilla on M$ store then it has a different path than the app will try to use.
+-Note: when you are done don't forget to scan your updated scenes with their URLs.
+ --Go to Tags, in the searchbox enter: urlhistory
+ --Click urlhistory, then choose the tagger button on the right side of the search/filter menu
+ --Source: Scrape with URL
+ --Use a brain cell of attention to skip performers with made up names
 
 [!](how_to_basics1.jpg)
 ## Using the app
