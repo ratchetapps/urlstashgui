@@ -26,10 +26,9 @@ Use your browser history to find URL matches for scenes in StashApps
 4.  **Click "Save History".**  
     - This saves `temp_browserHistory.db` as `browserHistory.db` and deletes all duplicates.  
       - `browserHistory.db` is appended if it exists already. So if you use this again, you can import from different browsers or after clearing browser history, retaining all the history you want.
-6.  **For those who don’t want some of their history in this file, click "Clean URLs".**  
-5. **Add any part of a URL that you don’t want matching with a scene, or just don’t want to keep in the DB.**
+5. **Filter out obviously incorrect URLs with the Clean button and list of sites**
      - If you’ve watched the scene, then you probably don’t want your StashApp URL to match your scene instead of the correct site...  
-     - Clicking  Clean saves it again.
+     - Clicking Clean will remove all matched url entries from the apps browser history file.
 
 7. **If you have used this app before, you can just type in a scene # to start near and click "Load Scenes".**  
    - It will use your `browserHistory.db` file automatically, and if you need to add your recent browser history, hop through steps 2–6 again.  
