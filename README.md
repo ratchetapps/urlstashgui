@@ -3,7 +3,7 @@ Use your browser history to find URL matches for scenes in StashApps
 
 ## Stuff you need 
 - StashApps
--** Scenes with filenames that match the URL title in history **
+- **Scenes with filenames that match the URL title in history **
   This app is only helpful if you have files that are named based on the page's title. Commonly seen with many yt-dlp or downloader apps.
 - Browser history  
   - e.g. Mozilla `%APPDATA%\Mozilla\Firefox\Profiles\<your profile>\places.sqlite`  
