@@ -37,6 +37,7 @@ Use your browser history to find URL matches for scenes in StashApps
 
    ### Additional Options
 
+  - Cursor over the matched URL to see all matches in tooltip
   - Skip organized
   - Auto-check threshold. If the number of URLs that match a scene reaches the threshold, that scene will be unchecked.
   - Auto-accept is recommended with a threshold of 3
