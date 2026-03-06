@@ -9,10 +9,10 @@ Use your browser history to find URL matches for scenes in StashApps
 - Browser history  
   - e.g. Mozilla `%APPDATA%\Mozilla\Firefox\Profiles\<your profile>\places.sqlite`  
   - or Chrome `%LOCALAPPDATA%\Google\Chrome\User Data\Default\History`
--** Scenes with filenames that match the URL title in history ** 
+- **Scenes with filenames that match the URL title in history** 
   - `.mp4`, `-01`, `-02`, etc., and any non-alphanumeric character (including spaces) are ignored.
-- a backup of your stashapps database and backup of your browser history, in case of 😭
-  -  _Extensive_ testing has been performed on windows with chrome & mozilla and localhost w/out an apikey 👌
+- (optional) a backup of your stashapps database and backup of your browser history
+  -  _Extensive_ testing has been performed on windows with chrome & mozilla and localhost. 
 
 ## Clip of GUI with auto-accept on
 
@@ -32,7 +32,7 @@ Use your browser history to find URL matches for scenes in StashApps
 6. **Any scene checked and then Accepted will have the matched URL and the Tag `urlhistory` saved to the scene**
 
 7. **Use Stash Tagging mode and select `Scrape with URL` or go to the scene and press <img src="img/down_icon.svg" alt="Download" width="16">**
-     - You can also filter by Tag 'urlhistory'
+     - You can also filter by **Tag** `urlhistory`
      - This repo has `Scrape with URL` saved in `/00Scrape with URL/`. Copy this folder and its contents into your scraper folder if you want it at the top of your scraper list.
 
    ### Additional Options
