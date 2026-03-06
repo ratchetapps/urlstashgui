@@ -23,11 +23,11 @@ pyinstaller:
   version_info:
     company_name: ""
     file_description: Add URLs to scenes in Stash
-    file_version: 2.1.0.0
+    file_version: 2.1.1.0
     internal_name: urlstashgui
     original_filename: urlstashgui.exe
     product_name: urlstashgui
-    product_version: 2.1.0
+    product_version: 2.1.1
 
   hidden_imports: []
   collect_all: []
