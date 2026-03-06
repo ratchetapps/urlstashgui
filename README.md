@@ -16,6 +16,8 @@ Use your browser history to find URL matches for scenes in StashApps
 
 ## Clip of GUI with auto-accept on
 
+> clip plays at actual speed. blurring effect added for privacy
+
 ![/img/urlstashgui_hq.gif](/img/urlstashgui_hq.gif)
 
 ## Using the app
