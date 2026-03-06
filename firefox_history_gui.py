@@ -180,6 +180,11 @@ class UrlStashGUI(ctk.CTk):
             return sys._MEIPASS
         return os.path.dirname(os.path.abspath(__file__))
 
+    def _get_persistent_base_dir(self):
+        if getattr(sys, "frozen", False):
+            return os.path.dirname(os.path.abspath(sys.executable))
+        return os.path.dirname(os.path.abspath(__file__))
+
     def _set_window_icon(self):
         icon_path = os.path.join(
             self._get_runtime_base_dir(),
@@ -3334,7 +3339,7 @@ class UrlStashGUI(ctk.CTk):
 
     def load_json_config(self):
         config_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "urlstashgui.config"
+            self._get_persistent_base_dir(), "urlstashgui.config"
         )
         self.json_config_path = config_path
         default_config = {
