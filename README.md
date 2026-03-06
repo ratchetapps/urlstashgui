@@ -33,7 +33,7 @@ Use your browser history to find URL matches for scenes in StashApps
 
 7. **Use Stash Tagging mode and select `Scrape with URL` or go to the scene and press <img src="img/down_icon.svg" alt="Download" width="16">**
      - You can also filter by **Tag** `urlhistory`
-     - This repo has `Scrape with URL` saved in `/00Scrape with URL/`. Copy this folder and its contents into your scraper folder if you want it at the top of your scraper list.
+     - This repo has `Scrape with URL` saved in `/00ScrapeURL/`. Copy this folder and its contents into your scraper folder if you want it at the top of your scraper list.
 
    ### Additional Options
 
