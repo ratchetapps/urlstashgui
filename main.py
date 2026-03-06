@@ -2,6 +2,7 @@
 import logging
 import os
 import ctypes
+import threading
 from tkinter import messagebox
 from firefox_history_gui import UrlStashGUI
 import customtkinter as ctk
@@ -26,6 +27,9 @@ if __name__ == "__main__":
         local_logger = logging.getLogger("UrlStashGUI")
         summary_lines = []
         summary_lines.append("Auto_initialize...")
+        processed_any = False
+        total_rows_appended = 0
+        processed_source_count = 0
 
         # Temporarily suppress message boxes during auto-run
         original_showinfo = messagebox.showinfo
@@ -46,8 +50,6 @@ if __name__ == "__main__":
                 summary_lines.append(
                     f"Found {len(app.userbrowserhistory)} browser history path(s) to process."
                 )
-                processed_any = False
-                # processed_any = False
 
                 for idx, history_path in enumerate(app.userbrowserhistory):
                     if not history_path or not os.path.exists(history_path):
@@ -62,15 +64,19 @@ if __name__ == "__main__":
                     )
 
                     try:
-                        success = app.process_single_history_file_and_clean(
-                            history_path
+                        success, rows_appended = app.process_single_history_file_and_clean(
+                            history_path,
+                            run_maintenance=False,
+                            return_rows=True,
                         )
 
                         if success:
                             summary_lines.append(
-                                f"Path {idx+1} ('{history_path}') processed. Copied to temp, appended to main browserHistory.db, cleaned."
+                                f"Path {idx+1} ('{history_path}') processed. Copied to temp and appended to main browserHistory.db."
                             )
                             processed_any = True
+                            processed_source_count += 1
+                            total_rows_appended += rows_appended
                         else:
                             summary_lines.append(
                                 f"Path {idx+1} ('{history_path}') failed to process."
@@ -84,9 +90,21 @@ if __name__ == "__main__":
                             f"Error during processing for {history_path}: {e_processing}",
                             exc_info=True,
                         )
+
+                if processed_source_count > 0 and os.path.exists("browserHistory.db"):
+                    if app._should_run_browser_history_maintenance(total_rows_appended):
+                        summary_lines.append(
+                            "Running batched dedupe/clean after all auto-start history files were appended."
+                        )
+                        app.remove_duplicates(run_vacuum=False)
+                        app.clean_urls_merged_db(run_vacuum=False)
+                    else:
+                        summary_lines.append(
+                            "Skipped batched dedupe/clean because no new rows were appended and DB settings match the current config."
+                        )
             # Initialize scene ID and load scenes if configured
             if hasattr(app, "lastsceneID") and app.lastsceneID:
-                app.start_id_var.set(str(app.lastsceneID))
+                app.after(0, lambda: app.start_id_var.set(str(app.lastsceneID)))
 
             # Mark that sync has been completed this session
             app.synced_this_session = True
@@ -106,9 +124,18 @@ if __name__ == "__main__":
             messagebox.showerror = original_showerror  # type: ignore
             messagebox.showwarning = original_showwarning  # type: ignore
 
+    def start_auto_initialize_when_ready():
+        local_logger = logging.getLogger("UrlStashGUI")
+        app.deiconify()
+        app.lift()
+        app.update_idletasks()
+        app.update_status("Preparing startup tasks...", "blue")
+        local_logger.info("Startup UI rendered. Beginning auto-initialization shortly...")
+        app.after(400, lambda: threading.Thread(target=auto_initialize, daemon=True).start())
+
     # Conditionally enable auto-initialization based on config
     if hasattr(app, 'auto_startup') and app.auto_startup:
-        app.after(100, auto_initialize)
+        app.after_idle(start_auto_initialize_when_ready)
 
     # Start the application
     app.mainloop()
