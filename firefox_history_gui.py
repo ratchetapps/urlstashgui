@@ -101,7 +101,7 @@ class UrlStashGUI(ctk.CTk):
         ctk.set_default_color_theme("blue")
 
         # Configure window
-        self.title("urlstashgui - v2.1.0")
+        self.title("urlstashgui - v2.1.1")
         self.geometry("1200x880")
         self.minsize(1200, 880)
         self._set_window_icon()
