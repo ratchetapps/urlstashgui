@@ -14,37 +14,47 @@ Use your browser history to find URL matches for scenes in StashApps
 - a backup of your stashapps database and backup of your browser history, in case of 😭
   -  _Extensive_ testing has been performed on windows with chrome & mozilla and localhost w/out an apikey 👌
 
-## 
-![how_to_basics1](how_to_basics1.jpg)
+## 9 second clip of GUI with auto-accept on
+
+![/img/urlstashgui_hq.gif](/img/urlstashgui_hq.gif)
 
 ## Using the app
 
-1.  **Edit StashApp connection info if needed**
+1.  **Edit Stash connection info if needed** in Settings tab
      - Your APIKEY is listed in [http://localhost:9999/settings?tab=security](http://localhost:9999/settings?tab=security) if you have this feature enabled
-2.  **With the popup..** 
-3.  **Browse to your browser history** 
-     - Mozilla uses `places.sqlite`—you may need to change the file extension to see it. Chrome uses `History`—again, you may need to change the file extension to see it. 
-       - This file is then copied to the folder with the `urlstashgui` app. Your actual browser history is not modified.  
-       - Your browser history DB is read and checked for a table matching Mozilla or Chrome structure, then copies `url` and `title` columns to `temp_browserHistory.db`.
-4.  **Click "Save History".**  
-    - This saves `temp_browserHistory.db` as `browserHistory.db` and deletes all duplicates.  
-      - `browserHistory.db` is appended if it exists already. So if you use this again, you can import from different browsers or after clearing browser history, retaining all the history you want.
-5. **Filter out obviously incorrect URLs with the Clean button and list of sites**
-     - If you’ve watched the scene, then you probably don’t want your StashApp URL to match your scene instead of the correct site...  
-     - Clicking Clean will remove all matched url entries from the apps browser history file.
+       
+2.  **Add browser history source** in DB Config tab
+     - Mozilla uses `places.sqlite` Chrome uses `History`
+     - Your actual browser history is not modified
+       
+4.  **Press Process Browser History** then go to Scenes tab and **Start**
+   
+6. **Any scene checked and then Accepted will have the matched URL and the Tag `urlhistory` saved to the scene**
 
-7. **If you have used this app before, you can just type in a scene # to start near and click "Load Scenes".**  
+7. **Use Stash Tagging mode and select `Scrape with URL` or go to the scene and press <img src="img/down_icon.svg" alt="Download" width="16">
+
+   ### Additional Options
+
+  - Skip organized
+  - Auto-check threshold. If the number of URLs that match a scene reaches the threshold, that scene will be unchecked.
+  - Auto-accept is recommended with a threshold of 3
+  - Auto-startup loads any new browser history and begins searching from where you left off.
+  - Connect multiple browser history files
+  - Blacklist URL strings to remove unwanted missmatches (e.g. localhost -> removed from match database). Does not take regex.
+  - Fix URL strings with find and replace logic (e.g. es.website.com -> website.com). Does not take regex.
+
+8. **If you have used this app before, you can just type in a scene # to start near and click "Load Scenes".**  
    - It will use your `browserHistory.db` file automatically, and if you need to add your recent browser history, hop through steps 2–6 again.  
    - Unless you have a lot of scenes, starting without entering anything in the "Scene ID #" field is a good way to begin.  
    - Uncheck "Skip Organized Scenes" if you want (it’s recommended to also uncheck performers, etc., when scraping with the URLs of organized scenes later).  
    - If your scenes are old and your browser is new, close the app and enter a more realistic scene number closer to your max scene # so you don’t sit there all day.
 
-8. **It searches until it finds 10 scenes, then shows the results.**  
+9. **It searches until it finds 10 scenes, then shows the results.**  
    - Uncheck any scenes you don’t want updated.  
    - Any existing URLs for your scenes are never modified. Identically matching URLs are automatically skipped and won’t appear as a result.  
    - Simple filenames can produce the same URL as another simple filename. If you can’t scrape to get a SceneID, it’s not too bad to accidentally match a few scenes incorrectly—but it’s easier to uncheck them now than to fix them later.
 
-9. **Click "Accept / Update URLs"** when you’re ready to update the scene’s URLs in StashApps.
+10. **Click "Accept / Update URLs"** when you’re ready to update the scene’s URLs in StashApps.
 
 *Backward does nothing, "Sync Scene File Summary" is for offline syncing but is missing another app component, "Help" is outdated, and I think "Refresh/Forward/Load Scenes/Accept" are all almost the same thing.*
 
