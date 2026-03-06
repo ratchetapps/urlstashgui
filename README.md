@@ -14,7 +14,7 @@ Use your browser history to find URL matches for scenes in StashApps
 - a backup of your stashapps database and backup of your browser history, in case of 😭
   -  _Extensive_ testing has been performed on windows with chrome & mozilla and localhost w/out an apikey 👌
 
-## 9 second clip of GUI with auto-accept on
+## Clip of GUI with auto-accept on
 
 ![/img/urlstashgui_hq.gif](/img/urlstashgui_hq.gif)
 
@@ -43,33 +43,6 @@ Use your browser history to find URL matches for scenes in StashApps
   - Blacklist URL strings to remove unwanted missmatches (e.g. localhost -> removed from match database). Does not take regex.
   - Fix URL strings with find and replace logic (e.g. es.website.com -> website.com). Does not take regex.
 
-8. **If you have used this app before, you can just type in a scene # to start near and click "Load Scenes".**  
-   - It will use your `browserHistory.db` file automatically, and if you need to add your recent browser history, hop through steps 2–6 again.  
-   - Unless you have a lot of scenes, starting without entering anything in the "Scene ID #" field is a good way to begin.  
-   - Uncheck "Skip Organized Scenes" if you want (it’s recommended to also uncheck performers, etc., when scraping with the URLs of organized scenes later).  
-   - If your scenes are old and your browser is new, close the app and enter a more realistic scene number closer to your max scene # so you don’t sit there all day.
-
-9. **It searches until it finds 10 scenes, then shows the results.**  
-   - Uncheck any scenes you don’t want updated.  
-   - Any existing URLs for your scenes are never modified. Identically matching URLs are automatically skipped and won’t appear as a result.  
-   - Simple filenames can produce the same URL as another simple filename. If you can’t scrape to get a SceneID, it’s not too bad to accidentally match a few scenes incorrectly—but it’s easier to uncheck them now than to fix them later.
-
-10. **Click "Accept / Update URLs"** when you’re ready to update the scene’s URLs in StashApps.
-
-*Backward does nothing, "Sync Scene File Summary" is for offline syncing but is missing another app component, "Help" is outdated, and I think "Refresh/Forward/Load Scenes/Accept" are all almost the same thing.*
-
 ---
-
-I did not write a single full line of any of this code. ChatGPT did it all.
-
----
-
-## 
-**Note: When you are done, don’t forget to scan your updated scenes with their URLs.**
-- Open **StashApps**  
-- Go to **Tags**, and in the search box enter: `urlhistory`  
-- Click **urlhistory**, then choose the tagger button on the right side of the search/filter menu  
-- Source: **Scrape with URL**  
-- Use a brain cell of attention to skip performers with made-up names
 
 Thanks
