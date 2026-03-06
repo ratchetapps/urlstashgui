@@ -55,12 +55,17 @@ class TextHandler(logging.Handler):
         super().__init__()
         self.text_widget = text_widget
         self.pending_messages = queue.SimpleQueue()
+        self._polling_started = False
 
     def emit(self, record):
         msg = self.format(record) + "\n"
         self.pending_messages.put(msg)
 
     def start_polling(self, interval_ms=50):
+        if self._polling_started:
+            return
+        self._polling_started = True
+
         def poll():
             self._flush_pending_messages()
             if self.text_widget.winfo_exists():
@@ -81,7 +86,6 @@ class TextHandler(logging.Handler):
 
         self.text_widget.configure(state="normal")
         for msg in messages:
-            self.text_widget.configure(state="normal")
             # Tag [JSON] messages as dark green.
             if "[JSON]" in msg:
                 self.text_widget.insert(tk.END, msg, "update_complete")
