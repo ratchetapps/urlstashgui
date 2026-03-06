@@ -1,0 +1,10 @@
+id: 00ScrapeWithURL
+name: 00Scrape with URL
+metadata: {}
+version: 47c26100
+date: "2025-11-23 13:08:53"
+requires: []
+source_repository: https://stashapp.github.io/CommunityScrapers/stable/index.yml
+files:
+- 00ScrapeWithURL.yml
+- 00ScrapeWithURL.py

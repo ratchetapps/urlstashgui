@@ -6,6 +6,7 @@ import shutil
 import threading
 import time
 import json
+import sys
 
 import customtkinter as ctk
 from tkinter import ttk, messagebox, filedialog
@@ -20,7 +21,8 @@ ctk.set_appearance_mode("system")  # "light", "dark", or "system"
 ctk.set_default_color_theme("blue")  # "blue", "green", or "dark-blue"
 
 TARGET_SCENE_COUNT = 10
-logger = setup_logger("UrlStashGUI", "log_fox.txt")
+LOG_FILE_NAME = "urlstashgui.log"
+logger = setup_logger("UrlStashGUI", LOG_FILE_NAME)
 
 
 class ToolTip:
@@ -99,9 +101,10 @@ class UrlStashGUI(ctk.CTk):
         ctk.set_default_color_theme("blue")
 
         # Configure window
-        self.title("urlstashgui - v2.0")
-        self.geometry("1200x900")
-        self.minsize(1200, 800)
+        self.title("urlstashgui - v2.1.0")
+        self.geometry("1200x880")
+        self.minsize(1200, 880)
+        self._set_window_icon()
 
         """Configure modern styling"""
         style = ttk.Style()
@@ -131,8 +134,8 @@ class UrlStashGUI(ctk.CTk):
         # Configure grid weight
         self.grid_columnconfigure(0, weight=0)  # Sidebar
         self.grid_columnconfigure(1, weight=1)  # Content
-        self.grid_rowconfigure(0, weight=1)  # Main area
-        self.grid_rowconfigure(1, weight=0)  # Log section (resizable)
+        self.grid_rowconfigure(0, weight=0)  # Main area
+        self.grid_rowconfigure(1, weight=1)  # Log section (resizable)
 
         # Threading and state variables
         self.pause_event = threading.Event()
@@ -172,6 +175,24 @@ class UrlStashGUI(ctk.CTk):
         # Initialize scene ID
         self.initialize_scene_id()
 
+    def _get_runtime_base_dir(self):
+        if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+            return sys._MEIPASS
+        return os.path.dirname(os.path.abspath(__file__))
+
+    def _set_window_icon(self):
+        icon_path = os.path.join(
+            self._get_runtime_base_dir(),
+            "img",
+            "urlstashgui.ico",
+        )
+        if not os.path.exists(icon_path):
+            return
+        try:
+            self.iconbitmap(icon_path)
+        except Exception as e:
+            logger.warning(f"Could not set window icon from '{icon_path}': {e}")
+
     def create_modern_widgets(self):
         """Create the modern CustomTkinter interface with sidebar navigation"""
 
@@ -186,7 +207,7 @@ class UrlStashGUI(ctk.CTk):
 
         # === LOG SECTION ===
         self.log_section = ctk.CTkFrame(self, corner_radius=10, height=180)
-        self.log_section.grid(row=1, column=1, sticky="ew", padx=10, pady=(5, 10))
+        self.log_section.grid(row=1, column=1, sticky="nsew", padx=10, pady=(5, 10))
         self.log_section.grid_columnconfigure(0, weight=1)
         self.log_section.grid_rowconfigure(1, weight=1)
         self.log_section.grid_propagate(False)  # Prevent resizing based on content
@@ -262,7 +283,7 @@ class UrlStashGUI(ctk.CTk):
         """Create the log output section"""
         self.log_header = ctk.CTkLabel(
             self.log_section,
-            text="Log Output - Ready",
+            text="Log",
             font=ctk.CTkFont(size=14, weight="bold"),
         )
         self.log_header.grid(row=0, column=0, sticky="w", padx=15, pady=(4, 2))
@@ -298,6 +319,13 @@ class UrlStashGUI(ctk.CTk):
 
     def show_page(self, name: str):
         """Show the selected page"""
+        if name == "Scenes":
+            self.grid_rowconfigure(0, weight=0)
+            self.grid_rowconfigure(1, weight=1)
+        else:
+            self.grid_rowconfigure(0, weight=1)
+            self.grid_rowconfigure(1, weight=0)
+
         # Update active page highlighting
         for idx, item in enumerate(self.nav_items):
             if item == name:
@@ -367,7 +395,7 @@ class UrlStashGUI(ctk.CTk):
         """Display the scene URL matching page (old top_frame + middle_frame content)"""
         # Main container
         container = ctk.CTkFrame(self.content_frame, fg_color="transparent")
-        container.pack(fill="both", expand=True, padx=20, pady=20)
+        container.pack(fill="x", expand=False, padx=20, pady=20)
 
         # === TOP CONTROL FRAME ===
         self.top_frame = ctk.CTkFrame(container, corner_radius=10)
@@ -377,13 +405,18 @@ class UrlStashGUI(ctk.CTk):
         # Row 1: Scene ID controls
         self.scene_controls_frame = ctk.CTkFrame(self.top_frame, fg_color="transparent")
         self.scene_controls_frame.pack(fill="x", padx=10, pady=10)
-        self.scene_controls_frame.grid_columnconfigure(6, weight=1)
+        self.scene_controls_frame.grid_columnconfigure(0, minsize=140)
+        self.scene_controls_frame.grid_columnconfigure(1, minsize=220)
+        self.scene_controls_frame.grid_columnconfigure(2, minsize=180)
+        self.scene_controls_frame.grid_columnconfigure(3, minsize=160)
+        self.scene_controls_frame.grid_columnconfigure(4, minsize=140)
+        self.scene_controls_frame.grid_columnconfigure(5, weight=1)
 
         self.load_button = ctk.CTkButton(
             self.scene_controls_frame,
             text="Start",
             command=self.load_scenes,
-            width=120,
+            width=140,
             fg_color="blue",
         )
         self.load_button.grid(row=0, column=0, padx=(0, 10), pady=4)
@@ -399,7 +432,11 @@ class UrlStashGUI(ctk.CTk):
         self.start_id_entry.grid(row=0, column=1, sticky="w")
 
         self.end_id_label = ctk.CTkLabel(
-            self.scene_controls_frame, text="End Scene ID: Unknown", text_color="blue"
+            self.scene_controls_frame,
+            text="End Scene ID: Unknown",
+            text_color="blue",
+            width=180,
+            anchor="w",
         )
         self.end_id_label.grid(row=0, column=2, sticky="w", padx=(10, 0), pady=4)
 
@@ -407,11 +444,15 @@ class UrlStashGUI(ctk.CTk):
             self.scene_controls_frame,
             text="Skip Organized",
             variable=self.skip_organized_var,
+            width=160,
         )
         self.skip_organized_check.grid(row=0, column=3, padx=(20, 6), pady=4)
 
         self.auto_accept_check = ctk.CTkCheckBox(
-            self.scene_controls_frame, text="Auto-Accept", variable=self.auto_accept_var
+            self.scene_controls_frame,
+            text="Auto-Accept",
+            variable=self.auto_accept_var,
+            width=140,
         )
         self.auto_accept_check.grid(row=0, column=4, padx=(6, 6), pady=4, sticky="w")
 
@@ -433,16 +474,10 @@ class UrlStashGUI(ctk.CTk):
         # Row 2: Action buttons
         self.action_frame = ctk.CTkFrame(self.top_frame, fg_color="transparent")
         self.action_frame.pack(fill="x", padx=10, pady=(0, 10))
+        self.action_frame.grid_columnconfigure(1, minsize=160)
+        self.action_frame.grid_columnconfigure(2, minsize=130)
+        self.action_frame.grid_columnconfigure(3, minsize=170)
         self.action_frame.grid_columnconfigure(4, weight=1)
-
-     #  // self.copy_button = ctk.CTkButton(
-    #   //     self.action_frame,
-   #   //      text="Process Browser History DB",
-   #   //      command=self.copy_places_db,
-    #   //     width=200,
-    #  //      fg_color="green",
-   #  //  )
-      #  self.copy_button.grid(row=0, column=0, padx=(0, 6), pady=5, sticky="w")
 
         self.accept_button = ctk.CTkButton(
             self.action_frame,
@@ -470,7 +505,7 @@ class UrlStashGUI(ctk.CTk):
             self.action_frame,
             text="Check/Uncheck All",
             command=self.toggle_check_all,
-            width=110,
+            width=170,
             fg_color="blue",
             state="disabled",
             hover=False,
@@ -547,12 +582,36 @@ class UrlStashGUI(ctk.CTk):
         self.progress_bar.set(0)
 
         # === SCENE ROWS FRAME ===
-        # Create scrollable frame for scene rows (10 rows at 45px each = 450px)
-        self.middle_frame = ctk.CTkScrollableFrame(
-            container, corner_radius=10, height=480
+        self.middle_frame_outer = ctk.CTkFrame(container, corner_radius=5)
+        self.middle_frame_outer.pack(fill="x", expand=False, pady=(1, 1))
+        self.middle_frame_outer.grid_columnconfigure(0, weight=1)
+        self.middle_frame_outer.grid_rowconfigure(0, weight=1)
+
+        self.middle_canvas = tk.Canvas(
+            self.middle_frame_outer,
+            height=460,
+            bg="#dbdbdb",
+            borderwidth=1,
+            highlightthickness=1,
+            relief="flat",
         )
-        self.middle_frame.pack(fill="both", expand=True, pady=(0, 0))
+        self.middle_canvas.grid(row=0, column=0, sticky="ew", padx=1, pady=(1, 0))
+
+        self.middle_x_scrollbar = ctk.CTkScrollbar(
+            self.middle_frame_outer,
+            orientation="horizontal",
+            command=self.middle_canvas.xview,
+        )
+        self.middle_x_scrollbar.grid(row=1, column=0, sticky="ew", padx=8, pady=(2,2))
+        self.middle_canvas.configure(xscrollcommand=self.middle_x_scrollbar.set)
+
+        self.middle_frame = ctk.CTkFrame(self.middle_canvas, fg_color="transparent")
         self.middle_frame.grid_columnconfigure(0, weight=1)
+        self.middle_canvas_window = self.middle_canvas.create_window(
+            (0, 0), window=self.middle_frame, anchor="nw"
+        )
+        self.middle_frame.bind("<Configure>", self._refresh_scene_canvas_scrollregion)
+        self.middle_canvas.bind("<Configure>", self._resize_scene_canvas_window)
 
         # Scene rows
         self.scene_row_frames = []
@@ -629,6 +688,23 @@ class UrlStashGUI(ctk.CTk):
             self.url_labels.append(url_label)
             tooltip = ToolTip(url_label, "No URLs available")
             self.url_tooltips.append(tooltip)
+
+    def _refresh_scene_canvas_scrollregion(self, event=None):
+        if not hasattr(self, "middle_canvas"):
+            return
+        self.middle_canvas.configure(scrollregion=self.middle_canvas.bbox("all"))
+        self._resize_scene_canvas_window()
+
+    def _resize_scene_canvas_window(self, event=None):
+        if not hasattr(self, "middle_canvas") or not hasattr(self, "middle_canvas_window"):
+            return
+
+        canvas_width = event.width if event else self.middle_canvas.winfo_width()
+        requested_width = self.middle_frame.winfo_reqwidth()
+        self.middle_canvas.itemconfigure(
+            self.middle_canvas_window,
+            width=max(canvas_width, requested_width),
+        )
 
     def show_settings_page(self):
         """Display the settings page"""
@@ -1393,6 +1469,7 @@ class UrlStashGUI(ctk.CTk):
         if formatter:
             text_handler.setFormatter(formatter)
         logger.addHandler(text_handler)
+        text_handler.start_polling()
 
     def initialize_scene_id(self):
         """Initialize scene ID from config"""
@@ -1841,18 +1918,130 @@ class UrlStashGUI(ctk.CTk):
             if main_conn:
                 main_conn.close()
 
-    def remove_duplicates(self):
+    def _ensure_browser_history_metadata_table(self, cursor):
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS app_metadata (
+                key TEXT PRIMARY KEY,
+                value TEXT
+            )
+        """)
+
+    def _get_current_history_processing_settings(self):
+        active_filters = self.url_filters if hasattr(self, "url_filters") else ["google.com", "localhost"]
+        active_replacements = self.url_replacements if hasattr(self, "url_replacements") else []
+
+        normalized_filters = sorted(
+            str(item).strip()
+            for item in active_filters
+            if str(item).strip()
+        )
+
+        normalized_replacements = []
+        for rep_pair in active_replacements:
+            if not isinstance(rep_pair, dict):
+                continue
+            normalized_replacements.append(
+                {
+                    "url_text": str(rep_pair.get("url_text", "")).strip(),
+                    "replace_with": str(rep_pair.get("replace_with", "")).strip(),
+                }
+            )
+
+        return {
+            "url_filters": json.dumps(normalized_filters, ensure_ascii=True),
+            "url_replacements": json.dumps(normalized_replacements, ensure_ascii=True),
+        }
+
+    def _get_stored_history_processing_settings(self, db_path="browserHistory.db"):
+        if not os.path.exists(db_path):
+            return None
+
+        conn = None
+        try:
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            self._ensure_browser_history_metadata_table(cursor)
+            conn.commit()
+
+            settings = {}
+            for key in ("url_filters", "url_replacements"):
+                cursor.execute("SELECT value FROM app_metadata WHERE key = ?", (key,))
+                row = cursor.fetchone()
+                settings[key] = row[0] if row else None
+            return settings
+        except sqlite3.Error as e:
+            logger.error(f"Failed to read stored browser history processing settings from {db_path}: {e}", exc_info=True)
+            return None
+        finally:
+            if conn:
+                conn.close()
+
+    def _store_history_processing_settings(self, cursor):
+        self._ensure_browser_history_metadata_table(cursor)
+        current_settings = self._get_current_history_processing_settings()
+        for key, value in current_settings.items():
+            cursor.execute(
+                "INSERT INTO app_metadata (key, value) VALUES (?, ?) "
+                "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+                (key, value),
+            )
+
+    def _should_run_browser_history_maintenance(self, rows_appended, db_path="browserHistory.db"):
+        if rows_appended > 0:
+            logger.info(
+                "Running deduplication and cleaning because new browser history rows were appended."
+            )
+            return True
+
+        current_settings = self._get_current_history_processing_settings()
+        stored_settings = self._get_stored_history_processing_settings(db_path)
+        if not stored_settings:
+            logger.info(
+                "Running deduplication and cleaning because no stored DB processing settings were found."
+            )
+            return True
+
+        if any(stored_settings.get(key) != current_settings.get(key) for key in current_settings):
+            logger.info(
+                "Running deduplication and cleaning because DB processing settings differ from the current config."
+            )
+            return True
+
+        logger.info(
+            "Skipped dedupe/clean because no new rows were appended and DB processing settings match the current config."
+        )
+        return False
+
+    def _browser_history_has_duplicate_urls(self, cursor):
+        cursor.execute("""
+            SELECT 1
+            FROM browser_hist
+            WHERE url IS NOT NULL AND url != ''
+            GROUP BY url
+            HAVING COUNT(*) > 1
+            LIMIT 1
+        """)
+        return cursor.fetchone() is not None
+
+    def remove_duplicates(self, run_vacuum=False):
         """Remove duplicates from browser history database"""
         db_path = "browserHistory.db"
         if not os.path.exists(db_path):
             logger.warning(f"{db_path} not found. Cannot remove duplicates.")
             return
 
+        duplicates_found = False
+        conn = None
         try:
             conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
 
             logger.info("Starting deduplication based on url and title...")
+
+            duplicates_found = self._browser_history_has_duplicate_urls(cursor)
+            if not duplicates_found:
+                logger.info("Skipped duplicate rewrite because no duplicate URLs were found.")
+                return
 
             cursor.executescript("""
                 CREATE TEMP TABLE IF NOT EXISTS temp_browser_hist AS
@@ -1878,9 +2067,13 @@ class UrlStashGUI(ctk.CTk):
             if conn:
                 conn.close()
 
-        self.repack_database(db_path)
+        if duplicates_found:
+            if run_vacuum:
+                self.repack_database(db_path)
+            else:
+                logger.info("VACUUM deferred after deduplication.")
 
-    def clean_urls_merged_db(self):
+    def clean_urls_merged_db(self, run_vacuum=False):
         """Clean URLs in the merged database"""
         main_db_path = "browserHistory.db"
         if not os.path.exists(main_db_path):
@@ -1972,7 +2165,13 @@ class UrlStashGUI(ctk.CTk):
                     f"skipped={replacements_skipped_total}."
                 )
 
-            cursor.execute("SELECT id, title FROM browser_hist WHERE title IS NOT NULL AND title <> ''")
+            cursor.execute("""
+                SELECT id, title
+                FROM browser_hist
+                WHERE title IS NOT NULL
+                  AND title <> ''
+                  AND (historytitle IS NULL OR historytitle = '')
+            """)
             rows_for_historytitle = cursor.fetchall()
             for row_id, title_val in rows_for_historytitle:
                 simple_title = sanitize_for_windows(str(title_val))
@@ -1983,6 +2182,7 @@ class UrlStashGUI(ctk.CTk):
             conn.commit()
             logger.info(f"Generated/updated 'historytitle' for {len(rows_for_historytitle)} entries.")
 
+            '''
             logger.info("Refreshing 'tableHits' summary table for repeated titles (count >= 2)...")
             cursor.execute("DROP TABLE IF EXISTS tableHits")
             conn.commit()
@@ -2001,11 +2201,17 @@ class UrlStashGUI(ctk.CTk):
             conn.commit()
 
             logger.info("'tableHits' table refreshed.")
+            '''
 
             count_final = cursor.execute("SELECT COUNT(*) FROM browser_hist").fetchone()[0]
+            self._store_history_processing_settings(cursor)
+            conn.commit()
             logger.info(f"Cleaning of {main_db_path} complete. Final entry count: {count_final}.")
 
-            self.repack_database(main_db_path)
+            if run_vacuum:
+                self.repack_database(main_db_path)
+            else:
+                logger.info("VACUUM deferred after cleaning.")
 
         except sqlite3.Error as e:
             logger.error(f"Error cleaning URLs: {e}", exc_info=True)
@@ -2030,7 +2236,7 @@ class UrlStashGUI(ctk.CTk):
             if conn:
                 conn.close()
 
-    def process_single_history_file_and_clean(self, source_filepath):
+    def process_single_history_file_and_clean(self, source_filepath, run_maintenance=True, return_rows=False):
         """Process a single history file: copy, append, deduplicate, and clean"""
         logger.info(f"Auto-processing individual file: {source_filepath}")
 
@@ -2067,9 +2273,14 @@ class UrlStashGUI(ctk.CTk):
 
             if file_processed_successfully:
                 if os.path.exists("browserHistory.db"):
-                    logger.info(f"Running deduplication and cleaning for browserHistory.db after processing {source_filepath}...")
-                    self.remove_duplicates()
-                    self.clean_urls_merged_db()
+                    if run_maintenance and self._should_run_browser_history_maintenance(rows_appended_from_this_source):
+                        logger.info(f"Running deduplication and cleaning for browserHistory.db after processing {source_filepath}...")
+                        self.remove_duplicates(run_vacuum=False)
+                        self.clean_urls_merged_db(run_vacuum=False)
+                    elif not run_maintenance:
+                        logger.info(
+                            f"Deferred deduplication and cleaning after processing {source_filepath}."
+                        )
                 else:
                     logger.info(f"browserHistory.db does not exist. Skipping deduplication and cleaning after {source_filepath}.")
             else:
@@ -2084,6 +2295,9 @@ class UrlStashGUI(ctk.CTk):
                     os.remove(temp_db_path)
                 except Exception as e:
                     logger.warning(f"Could not remove temp DB {temp_db_path}: {e}")
+
+        if return_rows:
+            return file_processed_successfully, rows_appended_from_this_source
 
         return file_processed_successfully
 
@@ -2133,11 +2347,12 @@ class UrlStashGUI(ctk.CTk):
 
         if processed_files_count > 0:
             logger.info(f"Finished appending data from {processed_files_count} source file(s). Total rows appended in this session: {total_rows_appended_overall}.")
-            logger.info("Now starting deduplication of the merged browserHistory.db...")
-            self.remove_duplicates()
+            if self._should_run_browser_history_maintenance(total_rows_appended_overall):
+                logger.info("Now starting deduplication of the merged browserHistory.db...")
+                self.remove_duplicates(run_vacuum=False)
 
-            logger.info("Now starting final cleaning of the merged browserHistory.db...")
-            self.clean_urls_merged_db()
+                logger.info("Now starting final cleaning of the merged browserHistory.db...")
+                self.clean_urls_merged_db(run_vacuum=False)
 
             logger.info("Sync and Clean All operation finished.")
             self.update_status("Processing complete", "green")
@@ -2171,7 +2386,7 @@ class UrlStashGUI(ctk.CTk):
 
     def get_last_scene_id_from_log(self):
         try:
-            with open("log_fox.txt", "r", encoding="utf-8") as f:
+            with open(LOG_FILE_NAME, "r", encoding="utf-8") as f:
                 lines = f.readlines()
             for line in reversed(lines):
                 match = re.search(r"Loaded scene (\d+)", line)
@@ -2283,12 +2498,12 @@ class UrlStashGUI(ctk.CTk):
             self.after(0, lambda: self.set_connection_ready(True))
             self.after(
                 0,
-                lambda: self._update_end_id_label(text=f"Last Scene ID: {max_id_local}"),
+                lambda: self._update_end_id_label(text=f"End Scene ID: {max_id_local}"),
             )
         except Exception as e:
             self.after(0, lambda: self.set_connection_ready(False))
             self.after(
-                0, lambda: self._update_end_id_label(text="Last Scene ID: Unknown")
+                0, lambda: self._update_end_id_label(text="End Scene ID: Unknown")
             )
             logger.error(f"Error retrieving maximum scene id: {e}")
 
@@ -2471,6 +2686,9 @@ class UrlStashGUI(ctk.CTk):
             logger.error(f"Error opening directory '{local_path}': {e}")
 
     def get_title_hit_count(self, clean_base: str) -> int:
+        # tableHits lookup disabled.
+        return 0
+        '''
         db_path = os.path.abspath("browserHistory.db")
         if not os.path.exists(db_path):
             logger.error(f"{db_path} not found for hit counts.")
@@ -2487,6 +2705,7 @@ class UrlStashGUI(ctk.CTk):
             return 0
         finally:
             conn.close()
+        '''
 
     def load_current_scenes(self):
         if not self._scenes_widgets_ready():
@@ -2562,7 +2781,7 @@ class UrlStashGUI(ctk.CTk):
                 text=f"{clean_base_trunc}\n{candidate_title_trunc}"
             )
 
-            title_hit_val = self.get_title_hit_count(candidate_title)
+            title_hit_val = len(all_candidates)
             display_prefix = f"({title_hit_val}) " if title_hit_val else ""
             display_url = candidate_url or "No URL found"
             self.url_labels[i].configure(text=display_prefix + display_url)
@@ -2746,6 +2965,7 @@ class UrlStashGUI(ctk.CTk):
 
             if self.checkbox_vars[i].get():
                 selected_url = self.url_labels[i].cget("text")
+                selected_url = re.sub(r"^\(\d+\)\s+", "", selected_url)
                 if selected_url and selected_url.lower().startswith("http"):
                     current_scene_data = self.stash.find_scene(scene_id_str)
                     if not current_scene_data:
@@ -3357,3 +3577,4 @@ class UrlStashGUI(ctk.CTk):
 if __name__ == "__main__":
     app = UrlStashGUI()
     app.mainloop()
+

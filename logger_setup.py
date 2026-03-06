@@ -1,11 +1,44 @@
 # logger_setup.py
 import logging
+import queue
+import re
 import tkinter as tk
+
+
+def redact_sensitive_data(message: str) -> str:
+    redacted = message
+    redacted = re.sub(
+        r'([\'"]apikey[\'"]\s*:\s*[\'"])(.*?)([\'"])',
+        r"\1***\3",
+        redacted,
+        flags=re.IGNORECASE,
+    )
+    redacted = re.sub(
+        r'([\'"]ApiKey[\'"]\s*:\s*[\'"])(.*?)([\'"])',
+        r"\1***\3",
+        redacted,
+    )
+    redacted = re.sub(
+        r"(API Key\s*[:=]\s*)(.+)",
+        r"\1***",
+        redacted,
+        flags=re.IGNORECASE,
+    )
+    return redacted
+
+
+class SensitiveDataFilter(logging.Filter):
+    def filter(self, record):
+        record.msg = redact_sensitive_data(record.getMessage())
+        record.args = ()
+        return True
 
 
 def setup_logger(name: str, log_file: str) -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
+    logger.filters.clear()
+    logger.addFilter(SensitiveDataFilter())
     formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     file_handler = logging.FileHandler(log_file, mode="w", encoding="utf-8")
     file_handler.setFormatter(formatter)
@@ -21,11 +54,33 @@ class TextHandler(logging.Handler):
     def __init__(self, text_widget):
         super().__init__()
         self.text_widget = text_widget
+        self.pending_messages = queue.SimpleQueue()
 
     def emit(self, record):
         msg = self.format(record) + "\n"
+        self.pending_messages.put(msg)
 
-        def append():
+    def start_polling(self, interval_ms=50):
+        def poll():
+            self._flush_pending_messages()
+            if self.text_widget.winfo_exists():
+                self.text_widget.after(interval_ms, poll)
+
+        self.text_widget.after(interval_ms, poll)
+
+    def _flush_pending_messages(self):
+        messages = []
+        while True:
+            try:
+                messages.append(self.pending_messages.get_nowait())
+            except queue.Empty:
+                break
+
+        if not messages or not self.text_widget.winfo_exists():
+            return
+
+        self.text_widget.configure(state="normal")
+        for msg in messages:
             self.text_widget.configure(state="normal")
             # Tag [JSON] messages as dark green.
             if "[JSON]" in msg:
@@ -39,7 +94,5 @@ class TextHandler(logging.Handler):
                 self.text_widget.insert(tk.END, msg, "update_complete")
             else:
                 self.text_widget.insert(tk.END, msg)
-            self.text_widget.configure(state="disabled")
-            self.text_widget.yview(tk.END)
-
-        self.text_widget.after(0, append)
+        self.text_widget.configure(state="disabled")
+        self.text_widget.yview(tk.END)
