@@ -1,5 +1,6 @@
 # logger_setup.py
 import logging
+import queue
 import re
 import tkinter as tk
 
@@ -53,11 +54,33 @@ class TextHandler(logging.Handler):
     def __init__(self, text_widget):
         super().__init__()
         self.text_widget = text_widget
+        self.pending_messages = queue.SimpleQueue()
 
     def emit(self, record):
         msg = self.format(record) + "\n"
+        self.pending_messages.put(msg)
 
-        def append():
+    def start_polling(self, interval_ms=50):
+        def poll():
+            self._flush_pending_messages()
+            if self.text_widget.winfo_exists():
+                self.text_widget.after(interval_ms, poll)
+
+        self.text_widget.after(interval_ms, poll)
+
+    def _flush_pending_messages(self):
+        messages = []
+        while True:
+            try:
+                messages.append(self.pending_messages.get_nowait())
+            except queue.Empty:
+                break
+
+        if not messages or not self.text_widget.winfo_exists():
+            return
+
+        self.text_widget.configure(state="normal")
+        for msg in messages:
             self.text_widget.configure(state="normal")
             # Tag [JSON] messages as dark green.
             if "[JSON]" in msg:
@@ -71,7 +94,5 @@ class TextHandler(logging.Handler):
                 self.text_widget.insert(tk.END, msg, "update_complete")
             else:
                 self.text_widget.insert(tk.END, msg)
-            self.text_widget.configure(state="disabled")
-            self.text_widget.yview(tk.END)
-
-        self.text_widget.after(0, append)
+        self.text_widget.configure(state="disabled")
+        self.text_widget.yview(tk.END)
