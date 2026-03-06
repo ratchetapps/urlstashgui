@@ -2479,6 +2479,7 @@ class UrlStashGUI(ctk.CTk):
                     "Host": self.host_var.get(),
                     "Port": self.port_var.get(),
                     "ApiKey": self.apikey_var.get(),
+                    "Logger": logger,
                 }
             )
         except Exception as e:
@@ -2922,6 +2923,7 @@ class UrlStashGUI(ctk.CTk):
                         "Host": self.host_var.get(),
                         "Port": self.port_var.get(),
                         "ApiKey": self.apikey_var.get(),
+                        "Logger": logger,
                     }
                 )
             except Exception as e:
@@ -3208,6 +3210,7 @@ class UrlStashGUI(ctk.CTk):
                     "Host": self.host_var.get(),
                     "Port": self.port_var.get(),
                     "ApiKey": self.apikey_var.get(),
+                    "Logger": logger,
                 }
             )
         except Exception as e:
