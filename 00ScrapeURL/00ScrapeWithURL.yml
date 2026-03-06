@@ -1,0 +1,9 @@
+name: 00Scrape with URL
+# requires: py_common
+
+sceneByFragment:
+  action: script
+  script:
+    - python
+    - 00ScrapeWithURL.py
+# Last Updated November 23, 2025
