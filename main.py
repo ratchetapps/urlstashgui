@@ -1,102 +1,141 @@
-# logger_setup.py
+# main.py - Updated for CustomTkinter
 import logging
-import queue
-import re
-import tkinter as tk
+import os
+import ctypes
+import threading
+from tkinter import messagebox
+from firefox_history_gui import UrlStashGUI
+import customtkinter as ctk
+import logger_setup
+import utils
+import firefox_history_gui
 
+# Set global CustomTkinter settings
+ctk.set_appearance_mode("system")  # "light", "dark", or "system"
+ctk.set_default_color_theme("blue")  # "blue", "green", or "dark-blue"
 
-def redact_sensitive_data(message: str) -> str:
-    redacted = message
-    redacted = re.sub(
-        r'([\'"]apikey[\'"]\s*:\s*[\'"])(.*?)([\'"])',
-        r"\1***\3",
-        redacted,
-        flags=re.IGNORECASE,
-    )
-    redacted = re.sub(
-        r'([\'"]ApiKey[\'"]\s*:\s*[\'"])(.*?)([\'"])',
-        r"\1***\3",
-        redacted,
-    )
-    redacted = re.sub(
-        r"(API Key\s*[:=]\s*)(.+)",
-        r"\1***",
-        redacted,
-        flags=re.IGNORECASE,
-    )
-    return redacted
+if __name__ == "__main__":
+    # Set DPI awareness for crisp rendering on high-DPI displays
+    try:
+        ctypes.windll.shcore.SetProcessDpiAwareness(1)
+    except:
+        pass  # Not Windows or function not available
 
+    app = UrlStashGUI()
 
-class SensitiveDataFilter(logging.Filter):
-    def filter(self, record):
-        record.msg = redact_sensitive_data(record.getMessage())
-        record.args = ()
-        return True
+    def auto_initialize():
+        local_logger = logging.getLogger("UrlStashGUI")
+        summary_lines = []
+        summary_lines.append("Auto_initialize...")
+        processed_any = False
+        total_rows_appended = 0
+        processed_source_count = 0
 
+        # Temporarily suppress message boxes during auto-run
+        original_showinfo = messagebox.showinfo
+        original_showerror = messagebox.showerror
+        original_showwarning = messagebox.showwarning
+        messagebox.showinfo = lambda *args, **kwargs: None  # type: ignore
+        messagebox.showerror = lambda *args, **kwargs: None  # type: ignore
+        messagebox.showwarning = lambda *args, **kwargs: None  # type: ignore
+        messagebox.bell = lambda *args, **kwargs: None  # type: ignore
 
-def setup_logger(name: str, log_file: str) -> logging.Logger:
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
-    logger.filters.clear()
-    logger.addFilter(SensitiveDataFilter())
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    file_handler = logging.FileHandler(log_file, mode="w", encoding="utf-8")
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-    return logger
-
-
-class TextHandler(logging.Handler):
-    """
-    Logging handler that writes log messages to a Tkinter Text widget.
-    """
-
-    def __init__(self, text_widget):
-        super().__init__()
-        self.text_widget = text_widget
-        self.pending_messages = queue.SimpleQueue()
-        self._polling_started = False
-
-    def emit(self, record):
-        msg = self.format(record) + "\n"
-        self.pending_messages.put(msg)
-
-    def start_polling(self, interval_ms=50):
-        if self._polling_started:
-            return
-        self._polling_started = True
-
-        def poll():
-            self._flush_pending_messages()
-            if self.text_widget.winfo_exists():
-                self.text_widget.after(interval_ms, poll)
-
-        self.text_widget.after(interval_ms, poll)
-
-    def _flush_pending_messages(self):
-        messages = []
-        while True:
-            try:
-                messages.append(self.pending_messages.get_nowait())
-            except queue.Empty:
-                break
-
-        if not messages or not self.text_widget.winfo_exists():
-            return
-
-        self.text_widget.configure(state="normal")
-        for msg in messages:
-            # Tag [JSON] messages as dark green.
-            if "[JSON]" in msg:
-                self.text_widget.insert(tk.END, msg, "update_complete")
-            # Tag [FILE ERROR] messages as dark red.
-            elif "[FILE ERROR]" in msg:
-                self.text_widget.insert(tk.END, msg, "file_error")
-            elif "Match found" in msg:
-                self.text_widget.insert(tk.END, msg, "match_found")
-            elif "Update complete" in msg:
-                self.text_widget.insert(tk.END, msg, "update_complete")
+        try:
+            if not app.userbrowserhistory:
+                summary_lines.append(
+                    "No history paths are configured. Skipping auto-initialization."
+                )
+            # return
             else:
-                self.text_widget.insert(tk.END, msg)
-        self.text_widget.configure(state="disabled")
-        self.text_widget.yview(tk.END)
+                summary_lines.append(
+                    f"Found {len(app.userbrowserhistory)} browser history path(s) to process."
+                )
+
+                for idx, history_path in enumerate(app.userbrowserhistory):
+                    if not history_path or not os.path.exists(history_path):
+                        error_msg = f"[FILE ERROR] Path {idx+1} ('{history_path}') not found or invalid. Skipping."
+                        summary_lines.append(error_msg)
+                        local_logger.error(error_msg)
+                        continue
+
+                    summary_lines.append(f"Processing path {idx+1}: {history_path}")
+                    local_logger.info(
+                        f"Auto-initializing with history file: {history_path}"
+                    )
+
+                    try:
+                        success, rows_appended = app.process_single_history_file_and_clean(
+                            history_path,
+                            run_maintenance=False,
+                            return_rows=True,
+                        )
+
+                        if success:
+                            summary_lines.append(
+                                f"Path {idx+1} ('{history_path}') processed. Copied to temp and appended to main browserHistory.db."
+                            )
+                            processed_any = True
+                            processed_source_count += 1
+                            total_rows_appended += rows_appended
+                        else:
+                            summary_lines.append(
+                                f"Path {idx+1} ('{history_path}') failed to process."
+                            )
+
+                    except Exception as e_processing:
+                        summary_lines.append(
+                            f"Error processing path {idx+1} ('{history_path}'): {e_processing}"
+                        )
+                        local_logger.error(
+                            f"Error during processing for {history_path}: {e_processing}",
+                            exc_info=True,
+                        )
+
+                if processed_source_count > 0 and os.path.exists("browserHistory.db"):
+                    if app._should_run_browser_history_maintenance(total_rows_appended):
+                        summary_lines.append(
+                            "Running batched dedupe/clean after all auto-start history files were appended."
+                        )
+                        app.remove_duplicates(run_vacuum=False)
+                        app.clean_urls_merged_db(run_vacuum=False)
+                    else:
+                        summary_lines.append(
+                            "Skipped batched dedupe/clean because no new rows were appended and DB settings match the current config."
+                        )
+            # Initialize scene ID and load scenes if configured
+            if hasattr(app, "lastsceneID") and app.lastsceneID:
+                app.after(0, lambda: app.start_id_var.set(str(app.lastsceneID)))
+
+            # Mark that sync has been completed this session
+            app.synced_this_session = True
+            app.sync_prompt_shown = True  # Don't show prompt since auto-startup already ran
+
+            # Auto-load scenes if processing was successful
+            if processed_any:
+                app.after(1000, app.load_scenes)
+            local_logger.info("\n".join(summary_lines))
+
+        except Exception as e:
+            summary_lines.append(f"[JSON] Auto initialization failed: {e}")
+            local_logger.error(f"[JSON] Auto initialization failed: {e}", exc_info=True)
+            local_logger.info("\n".join(summary_lines))
+        finally:
+            messagebox.showinfo = original_showinfo  # type: ignore
+            messagebox.showerror = original_showerror  # type: ignore
+            messagebox.showwarning = original_showwarning  # type: ignore
+
+    def start_auto_initialize_when_ready():
+        local_logger = logging.getLogger("UrlStashGUI")
+        app.deiconify()
+        app.lift()
+        app.update_idletasks()
+        app.update_status("Preparing startup tasks...", "blue")
+        local_logger.info("Startup UI rendered. Beginning auto-initialization shortly...")
+        app.after(400, lambda: threading.Thread(target=auto_initialize, daemon=True).start())
+
+    # Conditionally enable auto-initialization based on config
+    if hasattr(app, 'auto_startup') and app.auto_startup:
+        app.after_idle(start_auto_initialize_when_ready)
+
+    # Start the application
+    app.mainloop()
