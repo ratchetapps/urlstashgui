@@ -101,9 +101,9 @@ class UrlStashGUI(ctk.CTk):
         ctk.set_default_color_theme("blue")
 
         # Configure window
-        self.title("urlstashgui - v2.0")
-        self.geometry("1200x900")
-        self.minsize(1200, 800)
+        self.title("urlstashgui - v2.1.0")
+        self.geometry("1200x880")
+        self.minsize(1200, 880)
         self._set_window_icon()
 
         """Configure modern styling"""
@@ -134,8 +134,8 @@ class UrlStashGUI(ctk.CTk):
         # Configure grid weight
         self.grid_columnconfigure(0, weight=0)  # Sidebar
         self.grid_columnconfigure(1, weight=1)  # Content
-        self.grid_rowconfigure(0, weight=1)  # Main area
-        self.grid_rowconfigure(1, weight=0)  # Log section (resizable)
+        self.grid_rowconfigure(0, weight=0)  # Main area
+        self.grid_rowconfigure(1, weight=1)  # Log section (resizable)
 
         # Threading and state variables
         self.pause_event = threading.Event()
@@ -207,7 +207,7 @@ class UrlStashGUI(ctk.CTk):
 
         # === LOG SECTION ===
         self.log_section = ctk.CTkFrame(self, corner_radius=10, height=180)
-        self.log_section.grid(row=1, column=1, sticky="ew", padx=10, pady=(5, 10))
+        self.log_section.grid(row=1, column=1, sticky="nsew", padx=10, pady=(5, 10))
         self.log_section.grid_columnconfigure(0, weight=1)
         self.log_section.grid_rowconfigure(1, weight=1)
         self.log_section.grid_propagate(False)  # Prevent resizing based on content
@@ -319,6 +319,13 @@ class UrlStashGUI(ctk.CTk):
 
     def show_page(self, name: str):
         """Show the selected page"""
+        if name == "Scenes":
+            self.grid_rowconfigure(0, weight=0)
+            self.grid_rowconfigure(1, weight=1)
+        else:
+            self.grid_rowconfigure(0, weight=1)
+            self.grid_rowconfigure(1, weight=0)
+
         # Update active page highlighting
         for idx, item in enumerate(self.nav_items):
             if item == name:
@@ -388,7 +395,7 @@ class UrlStashGUI(ctk.CTk):
         """Display the scene URL matching page (old top_frame + middle_frame content)"""
         # Main container
         container = ctk.CTkFrame(self.content_frame, fg_color="transparent")
-        container.pack(fill="both", expand=True, padx=20, pady=20)
+        container.pack(fill="x", expand=False, padx=20, pady=20)
 
         # === TOP CONTROL FRAME ===
         self.top_frame = ctk.CTkFrame(container, corner_radius=10)
@@ -398,13 +405,18 @@ class UrlStashGUI(ctk.CTk):
         # Row 1: Scene ID controls
         self.scene_controls_frame = ctk.CTkFrame(self.top_frame, fg_color="transparent")
         self.scene_controls_frame.pack(fill="x", padx=10, pady=10)
-        self.scene_controls_frame.grid_columnconfigure(6, weight=1)
+        self.scene_controls_frame.grid_columnconfigure(0, minsize=140)
+        self.scene_controls_frame.grid_columnconfigure(1, minsize=220)
+        self.scene_controls_frame.grid_columnconfigure(2, minsize=180)
+        self.scene_controls_frame.grid_columnconfigure(3, minsize=160)
+        self.scene_controls_frame.grid_columnconfigure(4, minsize=140)
+        self.scene_controls_frame.grid_columnconfigure(5, weight=1)
 
         self.load_button = ctk.CTkButton(
             self.scene_controls_frame,
             text="Start",
             command=self.load_scenes,
-            width=120,
+            width=140,
             fg_color="blue",
         )
         self.load_button.grid(row=0, column=0, padx=(0, 10), pady=4)
@@ -420,7 +432,11 @@ class UrlStashGUI(ctk.CTk):
         self.start_id_entry.grid(row=0, column=1, sticky="w")
 
         self.end_id_label = ctk.CTkLabel(
-            self.scene_controls_frame, text="End Scene ID: Unknown", text_color="blue"
+            self.scene_controls_frame,
+            text="End Scene ID: Unknown",
+            text_color="blue",
+            width=180,
+            anchor="w",
         )
         self.end_id_label.grid(row=0, column=2, sticky="w", padx=(10, 0), pady=4)
 
@@ -428,11 +444,15 @@ class UrlStashGUI(ctk.CTk):
             self.scene_controls_frame,
             text="Skip Organized",
             variable=self.skip_organized_var,
+            width=160,
         )
         self.skip_organized_check.grid(row=0, column=3, padx=(20, 6), pady=4)
 
         self.auto_accept_check = ctk.CTkCheckBox(
-            self.scene_controls_frame, text="Auto-Accept", variable=self.auto_accept_var
+            self.scene_controls_frame,
+            text="Auto-Accept",
+            variable=self.auto_accept_var,
+            width=140,
         )
         self.auto_accept_check.grid(row=0, column=4, padx=(6, 6), pady=4, sticky="w")
 
@@ -454,6 +474,9 @@ class UrlStashGUI(ctk.CTk):
         # Row 2: Action buttons
         self.action_frame = ctk.CTkFrame(self.top_frame, fg_color="transparent")
         self.action_frame.pack(fill="x", padx=10, pady=(0, 10))
+        self.action_frame.grid_columnconfigure(1, minsize=160)
+        self.action_frame.grid_columnconfigure(2, minsize=130)
+        self.action_frame.grid_columnconfigure(3, minsize=170)
         self.action_frame.grid_columnconfigure(4, weight=1)
 
         self.accept_button = ctk.CTkButton(
@@ -482,7 +505,7 @@ class UrlStashGUI(ctk.CTk):
             self.action_frame,
             text="Check/Uncheck All",
             command=self.toggle_check_all,
-            width=110,
+            width=170,
             fg_color="blue",
             state="disabled",
             hover=False,
@@ -559,12 +582,36 @@ class UrlStashGUI(ctk.CTk):
         self.progress_bar.set(0)
 
         # === SCENE ROWS FRAME ===
-        # Create scrollable frame for scene rows (10 rows at 45px each = 450px)
-        self.middle_frame = ctk.CTkScrollableFrame(
-            container, corner_radius=10, height=480
+        self.middle_frame_outer = ctk.CTkFrame(container, corner_radius=5)
+        self.middle_frame_outer.pack(fill="x", expand=False, pady=(1, 1))
+        self.middle_frame_outer.grid_columnconfigure(0, weight=1)
+        self.middle_frame_outer.grid_rowconfigure(0, weight=1)
+
+        self.middle_canvas = tk.Canvas(
+            self.middle_frame_outer,
+            height=460,
+            bg="#dbdbdb",
+            borderwidth=1,
+            highlightthickness=1,
+            relief="flat",
         )
-        self.middle_frame.pack(fill="both", expand=True, pady=(0, 0))
+        self.middle_canvas.grid(row=0, column=0, sticky="ew", padx=1, pady=(1, 0))
+
+        self.middle_x_scrollbar = ctk.CTkScrollbar(
+            self.middle_frame_outer,
+            orientation="horizontal",
+            command=self.middle_canvas.xview,
+        )
+        self.middle_x_scrollbar.grid(row=1, column=0, sticky="ew", padx=8, pady=(2,2))
+        self.middle_canvas.configure(xscrollcommand=self.middle_x_scrollbar.set)
+
+        self.middle_frame = ctk.CTkFrame(self.middle_canvas, fg_color="transparent")
         self.middle_frame.grid_columnconfigure(0, weight=1)
+        self.middle_canvas_window = self.middle_canvas.create_window(
+            (0, 0), window=self.middle_frame, anchor="nw"
+        )
+        self.middle_frame.bind("<Configure>", self._refresh_scene_canvas_scrollregion)
+        self.middle_canvas.bind("<Configure>", self._resize_scene_canvas_window)
 
         # Scene rows
         self.scene_row_frames = []
@@ -641,6 +688,23 @@ class UrlStashGUI(ctk.CTk):
             self.url_labels.append(url_label)
             tooltip = ToolTip(url_label, "No URLs available")
             self.url_tooltips.append(tooltip)
+
+    def _refresh_scene_canvas_scrollregion(self, event=None):
+        if not hasattr(self, "middle_canvas"):
+            return
+        self.middle_canvas.configure(scrollregion=self.middle_canvas.bbox("all"))
+        self._resize_scene_canvas_window()
+
+    def _resize_scene_canvas_window(self, event=None):
+        if not hasattr(self, "middle_canvas") or not hasattr(self, "middle_canvas_window"):
+            return
+
+        canvas_width = event.width if event else self.middle_canvas.winfo_width()
+        requested_width = self.middle_frame.winfo_reqwidth()
+        self.middle_canvas.itemconfigure(
+            self.middle_canvas_window,
+            width=max(canvas_width, requested_width),
+        )
 
     def show_settings_page(self):
         """Display the settings page"""
@@ -1405,6 +1469,7 @@ class UrlStashGUI(ctk.CTk):
         if formatter:
             text_handler.setFormatter(formatter)
         logger.addHandler(text_handler)
+        text_handler.start_polling()
 
     def initialize_scene_id(self):
         """Initialize scene ID from config"""
@@ -2433,12 +2498,12 @@ class UrlStashGUI(ctk.CTk):
             self.after(0, lambda: self.set_connection_ready(True))
             self.after(
                 0,
-                lambda: self._update_end_id_label(text=f"Last Scene ID: {max_id_local}"),
+                lambda: self._update_end_id_label(text=f"End Scene ID: {max_id_local}"),
             )
         except Exception as e:
             self.after(0, lambda: self.set_connection_ready(False))
             self.after(
-                0, lambda: self._update_end_id_label(text="Last Scene ID: Unknown")
+                0, lambda: self._update_end_id_label(text="End Scene ID: Unknown")
             )
             logger.error(f"Error retrieving maximum scene id: {e}")
 
