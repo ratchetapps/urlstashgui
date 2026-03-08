@@ -6,10 +6,10 @@ This explains, in plain terms, how a scene filename is compared to a page title 
 
 ## The Basic Idea
 
-Both sides are simplified before comparing:
+Browsers save the full original page name in the history. Downloaded files need to strip certain characters sometimes. So this app tries to compare the simplified alphanumeric version of both to find matches.
 
 - Upper/lower case differences are ignored.
-- Spaces and symbols are ignored (` `, `-`, `_`, `.`, `(`, `)`, `!`, etc.).
+- Spaces and symbols are ignored (` `, `-`, `_`, `.`, `(`, `)`, `[`, `]`, `!`, emojis, .).
 - A trailing `.mp4` is ignored.
 - A trailing `-01`, `-02`, `-99` style ending is ignored only when it is a dash plus exactly two digits.
 
@@ -80,9 +80,6 @@ Cleaned title : abd
 
 ## Practical Tips
 
-1. Keep filenames close to the beginning of the original page title.
-2. Use `-01`, `-02`, etc. if you split files into parts.
-3. Avoid single-digit endings like `-1` if you expect part-number cleanup.
-4. If matching is weak, rename the file so its beginning mirrors the page title more closely.
+1. Keep filenames unchanged after downloading.
 
 [Back to README](../readme.md)
