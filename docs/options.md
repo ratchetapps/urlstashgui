@@ -16,28 +16,20 @@ Add one pattern per line. If a link contains that text anywhere, it gets ignored
 ### Good examples
 
 1. `localhost`  
-   Ignores local test links like `http://localhost:9999/...`
+   Ignores local links like `http://localhost:9999/...`
 
 2. `google.com`  
    Ignores generic search-result links from Google.
 
-3. `bing.com`  
-   Ignores Bing search pages.
-
-4. `webcache`  
-   Ignores cached-page links that usually are not the source you want.
-
 ### How to think about filter text
 
-1. Keep entries simple and specific.
-2. Start with obvious noise sites.
-3. Add new entries only after you notice repeated bad matches.
+1. Add new entries only after you notice bad matches.
+2. Keep entries specific.
 
 ### Common mistakes
 
-1. Adding text that is too broad, like `com` or `http`, which can remove almost everything.
-2. Adding spaces by accident (` google.com`) which may not behave as expected.
-3. Expecting advanced wildcard logic. This is plain text matching.
+1. Adding spaces by accident (` google.com`) which may not behave as expected.
+2. Expecting advanced wildcard logic. This is plain text matching.
 
 ## URL Replacement (Fix Link Text)
 
@@ -54,31 +46,24 @@ If the “find” text appears inside a link, it gets swapped with the replaceme
 
 1. Find: `spankbang.party`  
    Replace with: `spankbang.com`  
-   Result: `https://spankbang.party/...` becomes `https://spankbang.com/...`
+   Result: `https://spankbang.party/...` becomes `https://spankbang.com/...`, and is now recognized by the scraper
 
-2. Find: `m.example.com`  
-   Replace with: `www.example.com`  
-   Result: mobile-domain links become desktop-domain links.
+2. Find: `es.example.com`  
+   Replace with: `example.com`  
+   Result: Spanish URL prefix gets replaced with standard URL expected for a scraper
 
-3. Find: `/amp/`  
-   Replace with: `/`  
-   Result: AMP-style links become normal links.
-
-4. Find: `?output=1`  
-   Replace with: `` (empty)  
-   Result: removes a noisy query piece from the end.
+3. Find: `https://example.com`  
+   Replace with: `https://www.example.com`  
+   Result: Adds `www.` prefix which may be necessary for a scraper.
 
 ### Common mistakes
 
-1. Using a find text that is too broad, which changes unrelated links.
-2. Creating two rules that fight each other.
-3. Expecting case-sensitive or advanced pattern behavior; treat it as plain text replacement.
+1. Expecting case-sensitive or advanced pattern behavior; treat it as plain text replacement.
 
 ## Recommended Workflow
 
-1. Add a small filter list first (only obvious noise).
-2. Add one replacement rule at a time.
-3. Re-run and check results.
-4. Keep only the rules that clearly improve matches.
+1. Add one replacement rule at a time.
+2. Re-run and check results.
+3. Keep only the rules that clearly improve matches.
 
 [Back to README](../readme.md)
