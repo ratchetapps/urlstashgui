@@ -7,6 +7,9 @@ This page explains two useful options in plain terms:
 - URL filter: remove unwanted links from consideration.
 - URL replacement: correct common link text issues before matching.
 
+> [!NOTE]
+> Once URLs are saved to scenes, this app cannot change them. Changing the URL replacement does not affect scene matching, so if you make changes after a matched URL has already been saved, the app will continue adding more URLs to that scene. This is not a bad thing.
+
 ## URL Filter (Exclude Unwanted Links)
 
 Use this when certain sites keep showing up but are not useful for your real matches.
