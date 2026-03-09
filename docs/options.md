@@ -1,6 +1,6 @@
 # Filter and Replace Guide
 
-[Back to README](../readme.md)
+[Back to README](../README.md)
 
 This page explains two useful options in plain terms:
 
@@ -71,5 +71,5 @@ If the “find” text appears inside a link, it gets swapped with the replaceme
 2. Re-run and check results.
 3. Keep only the rules that clearly improve matches.
 
-[Back to README](../readme.md)
+[Back to README](../README.md)
 
