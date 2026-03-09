@@ -1,6 +1,6 @@
 # How Filename Matching Works
 
-[Back to README](../readme.md)
+[Back to README](../README.md)
 
 This explains, in plain terms, how a scene filename is compared to a page title from your browser history.
 
@@ -82,4 +82,4 @@ Cleaned title : abd
 
 1. Keep filenames unchanged after downloading.
 
-[Back to README](../readme.md)
+[Back to README](../README.md)
