@@ -38,6 +38,8 @@ Add one pattern per line. If a link contains that text anywhere, it gets ignored
 
 Use this when links are close to correct, but include a repeatable issue you want to fix automatically.
 
+![URL replacement options](../img/db_options.jpg)
+
 Each rule has two parts:
 
 1. Text to find
@@ -70,3 +72,4 @@ If the “find” text appears inside a link, it gets swapped with the replaceme
 3. Keep only the rules that clearly improve matches.
 
 [Back to README](../readme.md)
+

@@ -5,7 +5,7 @@ Edit the YAML block below, then run `build_pyinstaller.bat`.
 
 ```yaml
 pyinstaller:
-  entry_script: main.py
+  entry_script: urlstashgui\main.py
   name: urlstashgui
   mode: windowed
   onefile: true
@@ -51,14 +51,14 @@ pyinstaller:
 
 ## Build
 
-Run:
+Run from repo root:
 
 ```bat
-build_pyinstaller.bat
+pyinstaller\build_pyinstaller.bat
 ```
 
 Optional custom config path:
 
 ```bat
-build_pyinstaller.bat other-build-config.md
+pyinstaller\build_pyinstaller.bat other-build-config.md
 ```
