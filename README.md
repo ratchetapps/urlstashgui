@@ -1,6 +1,18 @@
 # urlstashgui
 Use your browser history to find URL matches for scenes in StashApps
 
+## Ways to run app
+
+- download `exe` file. click.
+- clone repo or download `.zip` and unzip. run `.bat` file to build `exe` locally. Requires `Python` and `PyInstaller`.
+- clone repo or download `.zip` or save the 4 python files. click on `main.py` to run or use console to launch 
+
+Python version requires
+```
+customtkinter==5.2.2
+stashapp-tools==0.2.59
+```
+
 ## Stuff you need 
 - StashApps
 - Scenes with filenames that match the URL title in history.
@@ -47,6 +59,18 @@ Use your browser history to find URL matches for scenes in StashApps
   - Blacklist URL strings to remove unwanted missmatches (e.g. localhost -> removed from match database). Does not take regex.
   - Fix URL strings with find and replace logic (e.g. es.website.com -> website.com). Does not take regex.
 
+  ### Guides
+
+  - [URL Filter and Replacement Guide](docs/options.md)
+  - [Match Scoring Guide](docs/matches.md)
+
 ---
 
 Thanks
+
+
+
+
+
+
+
